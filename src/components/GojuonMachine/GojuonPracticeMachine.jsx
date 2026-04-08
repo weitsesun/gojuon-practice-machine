@@ -5,6 +5,10 @@ import { KANA_LIST } from './kanaData'
 export default function GojuonPracticeMachine() {
   const [showHiragana, setShowHiragana] = useState(true)
   const [showKatakana, setShowKatakana] = useState(true)
+  const [showSeion, setShowSeion] = useState(true)
+  const [showDakuon, setShowDakuon] = useState(true)
+  const [showHandakuon, setShowHandakuon] = useState(true)
+  const [showYouon, setShowYouon] = useState(true)
   const [input, setInput] = useState('')
   const [message, setMessage] = useState('輸入對應的羅馬拼音後按 Enter')
   const [score, setScore] = useState(0)
@@ -13,12 +17,27 @@ export default function GojuonPracticeMachine() {
   const inputRef = useRef(null)
 
   const availableKana = useMemo(() => {
-    return KANA_LIST.filter(
-      (k) =>
+    return KANA_LIST.filter((k) => {
+      const typeMatched =
         (showHiragana && k.type === '平假名') ||
         (showKatakana && k.type === '片假名')
-    )
-  }, [showHiragana, showKatakana])
+
+      const groupMatched =
+        (showSeion && k.group === '清音') ||
+        (showDakuon && k.group === '濁音') ||
+        (showHandakuon && k.group === '半濁音') ||
+        (showYouon && k.group === '拗音')
+
+      return typeMatched && groupMatched
+    })
+  }, [
+    showHiragana,
+    showKatakana,
+    showSeion,
+    showDakuon,
+    showHandakuon,
+    showYouon
+  ])
 
   const randomQuestion = useCallback(
     (excludeKana = null, pool = availableKana) => {
@@ -37,7 +56,7 @@ export default function GojuonPracticeMachine() {
     setInput('')
     setMessage(
       availableKana.length === 0
-        ? '請至少選擇一種題型'
+        ? '請至少選擇一種字型與音類'
         : '輸入對應的羅馬拼音後按 Enter'
     )
     inputRef.current?.focus()
@@ -86,28 +105,92 @@ export default function GojuonPracticeMachine() {
           隨機出題，輸入正確羅馬拼音後自動進入下一題
         </p>
 
-        <div className={styles.filterRow}>
-          <label
-            className={`${styles.filterLabel} ${showHiragana ? styles.filterLabelActive : ''}`}
-          >
-            <input
-              type='checkbox'
-              checked={showHiragana}
-              onChange={() => setShowHiragana((v) => !v)}
-            />
-            平假名
-          </label>
+        <div className={styles.filterSection}>
+          <div className={styles.filterGroupTitle}>字體</div>
+          <div className={styles.filterRow}>
+            <label
+              className={`${styles.filterChip} ${
+                showHiragana ? styles.filterChipPrimaryActive : ''
+              }`}
+            >
+              <input
+                type='checkbox'
+                checked={showHiragana}
+                onChange={() => setShowHiragana((v) => !v)}
+              />
+              平假名
+            </label>
 
-          <label
-            className={`${styles.filterLabel} ${showKatakana ? styles.filterLabelActive : ''}`}
-          >
-            <input
-              type='checkbox'
-              checked={showKatakana}
-              onChange={() => setShowKatakana((v) => !v)}
-            />
-            片假名
-          </label>
+            <label
+              className={`${styles.filterChip} ${
+                showKatakana ? styles.filterChipPrimaryActive : ''
+              }`}
+            >
+              <input
+                type='checkbox'
+                checked={showKatakana}
+                onChange={() => setShowKatakana((v) => !v)}
+              />
+              片假名
+            </label>
+          </div>
+        </div>
+
+        <div className={styles.filterSection}>
+          <div className={styles.filterGroupTitle}>音類</div>
+          <div className={styles.filterRow}>
+            <label
+              className={`${styles.filterChip} ${
+                showSeion ? styles.filterChipSecondaryActive : ''
+              }`}
+            >
+              <input
+                type='checkbox'
+                checked={showSeion}
+                onChange={() => setShowSeion((v) => !v)}
+              />
+              清音
+            </label>
+
+            <label
+              className={`${styles.filterChip} ${
+                showDakuon ? styles.filterChipSecondaryActive : ''
+              }`}
+            >
+              <input
+                type='checkbox'
+                checked={showDakuon}
+                onChange={() => setShowDakuon((v) => !v)}
+              />
+              濁音
+            </label>
+
+            <label
+              className={`${styles.filterChip} ${
+                showHandakuon ? styles.filterChipSecondaryActive : ''
+              }`}
+            >
+              <input
+                type='checkbox'
+                checked={showHandakuon}
+                onChange={() => setShowHandakuon((v) => !v)}
+              />
+              半濁音
+            </label>
+
+            <label
+              className={`${styles.filterChip} ${
+                showYouon ? styles.filterChipSecondaryActive : ''
+              }`}
+            >
+              <input
+                type='checkbox'
+                checked={showYouon}
+                onChange={() => setShowYouon((v) => !v)}
+              />
+              拗音
+            </label>
+          </div>
         </div>
 
         <div className={styles.statsGrid}>
@@ -126,11 +209,13 @@ export default function GojuonPracticeMachine() {
         </div>
 
         {!current ? (
-          <div className={styles.emptyBox}>⚠️ 請至少選擇一種題型</div>
+          <div className={styles.emptyBox}>⚠️ 請至少選擇一種字型與音類</div>
         ) : (
           <>
             <div className={styles.questionBox}>
-              <div className={styles.questionType}>{current.type}</div>
+              <div className={styles.questionType}>
+                {current.type}・{current.group}
+              </div>
               <div className={styles.kana}>{current.kana}</div>
               <div className={styles.streakText}>目前連對：{streak}</div>
             </div>
