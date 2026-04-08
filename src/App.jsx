@@ -1,4 +1,4 @@
-import GojuonPracticeMachine from './GojuonPracticeMachine'
+import GojuonPracticeMachine from './components/GojuonMachine/GojuonPracticeMachine'
 // import './App.css'
 
 function App() {
